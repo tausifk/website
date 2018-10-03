@@ -1,0 +1,32 @@
+{% extends 'music/base.html' %}
+
+{% block tab %}
+	<ul class="nav navbar-nav navbar-right">
+		<li class="">
+			<a href="{% url 'music:add-songs' %}">
+				<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp; Add Songs
+			</a>
+		</li>
+		<li class="">
+			<a href="#">
+				<span class="glyphicon glyphicon-off" aria-hidden="true"></span>&nbsp; Logout
+			</a>
+		</li>
+	</ul>
+{% endblock %}
+
+{% block body %}
+<form action="" method="post">
+	{% csrf_token %}
+	{{ form.non_field_errors }}
+	<div class="fieldWrapper">
+		{{ form.errors }}
+		{{ form.label_tag }}
+		{{ form }}
+		{% if form.help_text %}
+		<p class="help">{{ form.help_text|safe }}</p>
+		{% endif %}
+	</div>
+	<input type="submit" value="Delete"/>
+</form>
+{% endblock %}

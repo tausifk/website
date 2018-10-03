@@ -1,0 +1,114 @@
+{% extends 'music/base.html' %}
+{% block title %}Album detail{% endblock %}
+
+{% block javascript %}
+	<script type="text/javascript">
+		$(document).ready(function(){
+
+			$('#commentBtn').click(function(){
+				// var inputElements = $('input[type:"text"]');
+				var artist = $('#artist').val();
+				var albumTitle = $('#albumTitle').val();
+				var genere = $('#genere').val();
+				var AlbumLogo = $('#albumLogo').val();
+				
+				// Acquiring the token
+				function getCookie(name) {
+				    var cookieValue = null;
+				    if (document.cookie && document.cookie !== '') {
+				        var cookies = document.cookie.split(';');
+				        for (var i = 0; i < cookies.length; i++) {
+				            var cookie = jQuery.trim(cookies[i]);
+				            // Does this cookie string begin with the name we want?
+				            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+				                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+				                break;
+				            }
+				        }
+				    }
+				    return cookieValue;
+				}
+				var csrftoken = getCookie('csrftoken');
+
+			// Setting the token on the AJAX request
+				function csrfSafeMethod(method) {
+				    // these HTTP methods do not require CSRF protection
+				    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+				}
+
+				$.ajaxSetup({
+				    beforeSend: function(xhr, settings) {
+				        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+				            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				        }
+				    }
+				});
+
+				$.ajax({
+					url: '',
+					method: 'post',
+					contentType: 'application/json; charset=utf-8',
+					data: {
+						artist: artist,
+						album_title: albumTitle,
+						genere: genere,
+						album_logo: AlbumLogo,
+					},
+					success: function(data){
+						getAllAlbums();
+					},
+					error: function(xhr, errmsg, err){
+						alert('xhr:' + xhr + ' ' + 'error message:' + errmsg + ' ' + 'err:' + err);
+					}
+				});
+
+
+				function getAllAlbums(){
+					$.ajax({
+						url: '/help/',
+						dataType: 'json',
+						method: 'post',
+						contentType: 'application/json',
+						success: function(data){
+							var elementTable = $('#tableAlbum tbody');
+							elementTable.empty();
+							$(data).each(function(index, emp){
+								elementTable.append('<tr><td>' + emp.fields.artist + '</td><td>' 
+									+ emp.fields.album_title + '</td><td>' + emp.fields.genere + '</td></tr>');
+							});
+						},
+						error: function(xhr, errmsg, err){
+							alert('xhr:' + xhr + ' ' + 'error message:' + errmsg + ' ' + 'err:' + err);
+						}
+					});
+				};
+			});
+		});
+	</script>
+
+{% endblock %}
+
+{% block body %} 
+	<img src={{"album.album_logo"}} alt={{album.album_title}} style={{"width:128px; height: 128px"}}>
+	<h1>{{ album.album_title }}</h1>
+	<h2>{{ album.artist}}</h2>
+
+	{% for song in album.song_set.all %}
+		<ul>
+			<li>{{song.song_title}}</li>
+		</ul>
+	{% endfor %}
+
+	<form action="" method="POST">
+	{% csrf_token %}
+		{{ form.as_p }}
+		<input type="button" value="Comment" id="commentBtn" />
+	</form>
+	
+	
+	<!-- <div class="fieldWrapper">
+		<label for="id_artist">Comments:</label>
+		<input type="text" name="comment" maxlength="250" required id="artist" />
+		<div id="artistHelpText"></div>		
+	</div> -->
+{% endblock %}

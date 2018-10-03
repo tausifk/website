@@ -1,0 +1,99 @@
+{% extends 'music/base.html' %}
+{% block title %}Add Album{% endblock %}
+
+{% block javascript %}
+	<script>
+		$(document).ready(function(){
+			$('input[type="text"]').focus(function(){
+				function getCookie(name) {
+				    var cookieValue = null;
+				    if (document.cookie && document.cookie !== '') {
+				        var cookies = document.cookie.split(';');
+				        for (var i = 0; i < cookies.length; i++) {
+				            var cookie = jQuery.trim(cookies[i]);
+				            // Does this cookie string begin with the name we want?
+				            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+				                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+				                break;
+				            }
+				        }
+				    }
+				    return cookieValue;
+				}
+				var csrftoken = getCookie('csrftoken');
+
+			// Setting the token on the AJAX request
+				function csrfSafeMethod(method) {
+				    // these HTTP methods do not require CSRF protection
+				    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+				}
+
+				$.ajaxSetup({
+				    beforeSend: function(xhr, settings) {
+				        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+				            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				        }
+				    }
+				});
+
+				$.ajax({
+					url: '/help/',
+					dataType: 'json',
+					method: 'post',
+					contentType: 'application/json',
+					success: function(data){
+						var inputElement = $(this).attr('id');
+						var divElement = $('#'+inputElement+'HelpText');
+						divElement.html(data.artist);		
+					},
+					// error: function(xhr, errmsg, err){
+					// 	alert('xhr:' + xhr + ' ' + 'error message:' + errmsg + ' ' + 'err:' + err);
+					// }
+				});	
+			});
+		});		
+	</script>
+{% endblock %}
+
+{% block body %}
+	<form action="" method="post">
+		{% csrf_token %}
+		<div class="fieldWrapper">
+				<label for="id_artist">Artist:</label>
+				<input type="text" name="artist" maxlength="250" required id="artist" />
+				<div id="artistHelpText"></div>		
+			</div>
+			
+			<div class="fieldWrapper">
+			
+				<label for="id_album_title">Album title:</label>
+				<input type="text" name="album_title" maxlength="500" required id="albumTitle" />
+				<div id="albumTitleHelpText"></div>
+				
+			</div>
+			
+			<div class="fieldWrapper">
+				<label for="id_genere">Genere:</label>
+				<input type="text" name="genere" maxlength="100" required id="genere" />
+				<div id="genereHelpText"></div>
+			</div>
+			
+			<div class="fieldWrapper">
+				<label for="id_album_logo">Album logo:</label>
+				<input type="text" name="album_logo" maxlength="1000" required id="albumLogo" />
+				<div id="albumLogoHelpText"></div>
+			</div>		
+		<!-- {{ form.non_field_errors }}
+		{% for field in form %}
+			<div class="fieldWrapper">
+				{{ field.errors }}
+				{{ field.label_tag }}
+				{{ field }}
+				{% if field.help_text %}
+					<p class="help">{{ field.help_text|safe }}</p>
+				{% endif %}
+			</div>
+		{% endfor %} -->
+		<input type="submit" value="Add"><br/><br/>
+	</form>
+{% endblock %}

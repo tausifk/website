@@ -1,0 +1,12 @@
+{% extends 'music/base.html' %}
+
+{% block body %}
+<form action="" method="post">
+	{% csrf_token %}
+	<label for="username">Username:</label>
+	<input id="username" type="text" name="username" /><br />
+	<label for="username">Password:</label>
+	<input id="password" type="password" name="username" /><br />
+	<input type="submit" value="Login">
+</form> 
+{% endblock %}		

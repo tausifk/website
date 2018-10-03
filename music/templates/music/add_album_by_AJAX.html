@@ -1,0 +1,134 @@
+{% extends 'music/base.html' %}
+{% block title %}Add Album{% endblock %}
+
+{% block javascript %}
+	<script type="text/javascript">
+		$(document).ready(function(){
+
+			$('#getAllEmployees').click(function(){
+				// var inputElements = $('input[type:"text"]');
+				var artist = $('#artist').val();
+				var albumTitle = $('#albumTitle').val();
+				var genere = $('#genere').val();
+				var AlbumLogo = $('#albumLogo').val();
+				
+				// Acquiring the token
+				function getCookie(name) {
+				    var cookieValue = null;
+				    if (document.cookie && document.cookie !== '') {
+				        var cookies = document.cookie.split(';');
+				        for (var i = 0; i < cookies.length; i++) {
+				            var cookie = jQuery.trim(cookies[i]);
+				            // Does this cookie string begin with the name we want?
+				            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+				                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+				                break;
+				            }
+				        }
+				    }
+				    return cookieValue;
+				}
+				var csrftoken = getCookie('csrftoken');
+
+			// Setting the token on the AJAX request
+				function csrfSafeMethod(method) {
+				    // these HTTP methods do not require CSRF protection
+				    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+				}
+
+				$.ajaxSetup({
+				    beforeSend: function(xhr, settings) {
+				        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+				            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				        }
+				    }
+				});
+
+				$.ajax({
+					url: '',
+					method: 'post',
+					contentType: 'application/json; charset=utf-8',
+					data: {
+						artist: artist,
+						album_title: albumTitle,
+						genere: genere,
+						album_logo: AlbumLogo,
+					},
+					success: function(data){
+						getAllAlbums();
+					},
+					error: function(xhr, errmsg, err){
+						alert('xhr:' + xhr + ' ' + 'error message:' + errmsg + ' ' + 'err:' + err);
+					}
+				});
+
+
+				function getAllAlbums(){
+					$.ajax({
+						url: '/help/',
+						dataType: 'json',
+						method: 'post',
+						contentType: 'application/json',
+						success: function(data){
+							var elementTable = $('#tableAlbum tbody');
+							elementTable.empty();
+							$(data).each(function(index, emp){
+								elementTable.append('<tr><td>' + emp.fields.artist + '</td><td>' 
+									+ emp.fields.album_title + '</td><td>' + emp.fields.genere + '</td></tr>');
+							});
+						},
+						error: function(xhr, errmsg, err){
+							alert('xhr:' + xhr + ' ' + 'error message:' + errmsg + ' ' + 'err:' + err);
+						}
+					});
+				};
+			});
+		});
+	</script>
+
+{% endblock %}
+
+{% block body %}
+	<form action="" method="post">
+	{% csrf_token %}
+
+		<div class="fieldWrapper">
+			<label for="id_artist">Artist:</label>
+			<input type="text" name="artist" maxlength="250" required id="artist" />
+			<div id="artistHelpText"></div>		
+		</div>
+		
+		<div class="fieldWrapper">
+		
+			<label for="id_album_title">Album title:</label>
+			<input type="text" name="album_title" maxlength="500" required id="albumTitle" />
+			<div id="albumTitleHelpText"></div>
+			
+		</div>
+		
+		<div class="fieldWrapper">
+			<label for="id_genere">Genere:</label>
+			<input type="text" name="genere" maxlength="100" required id="genere" />
+			<div id="genereHelpText"></div>
+		</div>
+		
+		<div class="fieldWrapper">
+			<label for="id_album_logo">Album logo:</label>
+			<input type="text" name="album_logo" maxlength="1000" required id="albumLogo" />
+			<div id="albumLogoHelpText"></div>
+		</div>
+
+		<input type="button" value="Add" id="getAllEmployees"><br/><br/>
+	</form>
+
+	<table id="tableAlbum" border="1" style="border-collapse: collapse;">
+		<thead>
+			<tr>
+				<th>Album</th>
+				<th>Album Title</th>
+				<th>Gener</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+{% endblock %}
